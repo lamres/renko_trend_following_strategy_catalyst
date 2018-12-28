@@ -20,10 +20,11 @@ def initialize(context):
     context.asset = symbol('eth_btc')
 
     context.leverage = 1.0              # 1.0 - no leverage
-    context.n_history = 24 * 15         # Number of lookback bars for modelling
-    context.tf = '60T'                  # How many minutes in a timeframe
+    context.n_history = 877             # Number of lookback bars for modelling
+    context.tf = 99                     # How many minutes in a timeframe
+    context.diff_lag = 96               # Lag of differences to get returns
     context.model = pyrenko.renko()     # Renko object
-    context.part_cover_ratio = 0.166    # Partially cover position ratio
+    context.part_cover_ratio = 0.67     # Partially cover position ratio
     context.last_brick_size = 0.0       # Last optimal brick size (just for storing)
     
     context.set_benchmark(context.asset)
@@ -41,11 +42,11 @@ def handle_data(context, data):
         history = data.history(context.asset,
             'price',
             bar_count = context.n_history, 
-            frequency = context.tf
+            frequency = str(context.tf) + 'T'
             )
 
-        # Get daily absolute returns
-        diffs = history.diff(24).abs()
+        # Get absolute returns
+        diffs = history.diff(context.diff_lag).abs()
         diffs = diffs[~np.isnan(diffs)]
         # Calculate IQR of daily returns
         iqr_diffs = np.percentile(diffs, [25, 75])
@@ -114,7 +115,7 @@ def handle_data(context, data):
 def analyze(context, perf):
     # Summary output
     print('Total return: ' + str(perf.algorithm_period_return[-1]))
-    print('Sortino coef: ' + str(perf.sortino[-1]))
+    print('Sortino ratio: ' + str(perf.sortino[-1]))
     print('Max drawdown: ' + str(np.min(perf.max_drawdown)))
     print('Alpha: ' + str(perf.alpha[-1]))
     print('Beta: ' + str(perf.beta[-1]))
@@ -171,6 +172,8 @@ def analyze(context, perf):
 
     plt.show()
 
+    #perf.returns.to_csv(str(context.asset) + '_returns.csv')
+
 run_algorithm(
     capital_base = 10,
     data_frequency = 'daily',
@@ -179,6 +182,6 @@ run_algorithm(
     analyze = analyze,
     exchange_name = 'bitfinex',
     quote_currency = 'btc',
-    start = pd.to_datetime('2017-12-1', utc = True),
-    end = pd.to_datetime('2018-11-12', utc = True))
+    start = pd.to_datetime('2018-11-1', utc = True),
+    end = pd.to_datetime('2018-11-30', utc = True))
 
