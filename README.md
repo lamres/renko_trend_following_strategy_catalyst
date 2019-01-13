@@ -1,6 +1,9 @@
 # renko_trend_following_strategy_catalyst
 Example of adaptive trend following strategy based on Renko. This article describes the strategy https://hackernoon.com/adaptive-trend-following-trading-strategy-based-on-renko-9248bf83554
 
+Article about optimizer script
+https://medium.freecodecamp.org/bayesian-optimization-in-trading-4fb918fc52a7
+
 This strategy uses Catalyst framework for backtesting https://enigma.co/catalyst/beginner-tutorial.html
 
 ### Project contains:
